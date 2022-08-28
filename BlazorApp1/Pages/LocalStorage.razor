@@ -1,0 +1,83 @@
+﻿@page "/localstorage"
+@using BlazorApp1.Entities
+@inject Blazored.LocalStorage.ILocalStorageService _localStorage
+
+<h1>Add Person</h1>
+<label>Key</label>
+<input class="form-control" placeholder="Key" @bind-value="person.Key"/>
+<label>Name</label>
+<input class="form-control" placeholder="Name" @bind-value="person.Name"/>
+<label>Address</label>
+<input class="form-control" placeholder="Address" @bind-value="person.Address" />
+<label>Age</label>
+<input class="form-control" placeholder="Age" @bind-value="person.Age" />
+<label>Mobile</label>
+<input class="form-control" placeholder="Mobile" @bind-value="person.Mobile" />
+<button class="btn btn-primary" @onclick="Post">Add</button>
+<button class="btn btn-danger" @onclick="Clear">Clear</button>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Key</th>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Mobile</th>
+            <th>Address</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+            @foreach (var singlePerson in persons)
+            {
+        <tr>
+                <td>@singlePerson.Key</td>
+                <td>@singlePerson.Name</td>
+                <td>@singlePerson.Age</td>
+                <td>@singlePerson.Mobile</td>
+                <td>@singlePerson.Address</td>
+                <td>
+                    <button class="btn btn-danger" @onclick="()=>Delete(singlePerson.Key)">Delete</button>
+                </td>
+        </tr>
+            }
+
+    </tbody>
+</table>
+@code {
+
+    Person person = new();
+    List<Person> persons = new List<Person>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var keys = await _localStorage.KeysAsync();
+        foreach (var key in keys)
+        {
+            Person personFromLocal = await _localStorage.GetItemAsync<Person>(key);
+            persons.Add(personFromLocal);
+        }
+    }
+    public async void Post()
+    {
+        await _localStorage.SetItemAsync<Person>(person.Key, person);
+        Person personFromLocal = await _localStorage.GetItemAsync<Person>(person.Key);
+        persons.Add(personFromLocal);
+        StateHasChanged();
+    }   
+    public async void Clear()
+    {
+
+        await _localStorage.ClearAsync();
+        persons = new List<Person>();
+        StateHasChanged();
+
+     
+    }    
+    public async void Delete(string key)
+    {
+        await _localStorage.RemoveItemAsync(key);
+        Person personFromLocal = await _localStorage.GetItemAsync<Person>(key);
+        persons.Remove(personFromLocal);
+        StateHasChanged();
+    }
+}
