@@ -1,5 +1,4 @@
 ﻿@page "/localstorage"
-@using BlazorApp1.Entities
 @inject Blazored.LocalStorage.ILocalStorageService _localStorage
 
 <h1>Add Person</h1>
@@ -27,9 +26,9 @@
         </tr>
     </thead>
     <tbody>
-            @foreach (var singlePerson in persons)
-            {
-        <tr>
+        @foreach (var singlePerson in persons)
+        {
+            <tr>
                 <td>@singlePerson.Key</td>
                 <td>@singlePerson.Name</td>
                 <td>@singlePerson.Age</td>
@@ -38,8 +37,8 @@
                 <td>
                     <button class="btn btn-danger" @onclick="()=>Delete(singlePerson.Key)">Delete</button>
                 </td>
-        </tr>
-            }
+            </tr>
+        }
 
     </tbody>
 </table>
