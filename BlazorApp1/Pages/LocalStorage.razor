@@ -47,20 +47,16 @@
     Person person = new();
     List<Person> persons = new List<Person>();
 
-    protected override async Task OnInitializedAsync()
-    {
-        var keys = await _localStorage.KeysAsync();
-        foreach (var key in keys)
-        {
-            Person personFromLocal = await _localStorage.GetItemAsync<Person>(key);
-            persons.Add(personFromLocal);
-        }
-    }
+    protected override async Task OnInitializedAsync() => await GetAsync();
+
     public async void Post()
     {
         await _localStorage.SetItemAsync<Person>(person.Key, person);
-        Person personFromLocal = await _localStorage.GetItemAsync<Person>(person.Key);
-        persons.Add(personFromLocal);
+        if (person.Key != "i18nextLng")
+        { 
+            Person personFromLocal = await _localStorage.GetItemAsync<Person>(person.Key);
+            persons.Add(personFromLocal);
+        }
         StateHasChanged();
     }   
     public async void Clear()
@@ -70,13 +66,28 @@
         persons = new List<Person>();
         StateHasChanged();
 
-     
+
     }    
     public async void Delete(string key)
     {
         await _localStorage.RemoveItemAsync(key);
-        Person personFromLocal = await _localStorage.GetItemAsync<Person>(key);
-        persons.Remove(personFromLocal);
+
+        Person personFromLocalDeleted = await _localStorage.GetItemAsync<Person>(key);
+        persons.Remove(personFromLocalDeleted);
+        await GetAsync();
         StateHasChanged();
+
+    }
+    public async Task GetAsync()
+    {
+        var keys = await _localStorage.KeysAsync();
+        foreach (var key in keys)
+        {
+            if (key != "i18nextLng")
+            {
+                Person personFromLocal = await _localStorage.GetItemAsync<Person>(key);
+                persons.Add(personFromLocal);
+            }
+        }
     }
 }
